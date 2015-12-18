@@ -1,81 +1,58 @@
-## Linux Server Configuration - FSND P5
-http://ec2-52-34-216-40.us-west-2.compute.amazonaws.com/
+## Conference Central - FSND P5
 ### Poject Description:
-Deploying web application in Amazon's Elastic Compute Cloud (EC2).
+Cloud-based API server to support a conference organization application.
+### What's included
+catalog/   
+|--- client_secrets.json          
+|--- database_setup.json           
+|--- demo_items.json           
+|--- project.py                
+|--- static/              
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- bootstrap/         
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- fonts/             
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- img/       
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- js/        
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- app.js           
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- controllers.js           
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- partials/              
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- conference_detail.html 	
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- create_conferences.html             
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- home.html           
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- login.modal.html              
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- profile.html           
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- show_conferences.html           
+|--- templates/             
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--- index.html                      
 
-### About Application
-- Apache2, WSGI, Python
-- IP: 52.34.216.40    Port: 2200  (ssh -i ~/.ssh/udacity_key.rsa grader@52.34.216.40 -p 2200)
+### Live Demo
+APIs: https://conference-central-1159.appspot.com/_ah/api/explorer              
+Application: https://conference-central-1159.appspot.com    
+### Running locally
+1. create project and project credentials in https://console.developers.google.com/project
+2. clone project
+3. update personal project information:             
+    (1) app.yaml: application         
+    (2) settings.py: client_id              
+    (3) /static/js/app.js: client_id
+4. install Google App Engine Launcher from https://cloud.google.com/appengine/downloads?hl=en              
+5. add project to app engine launcher and add local address to google projects credentials (eg. port: 5000)             
+6. start app engine
+7. access and test application: 'http://localhost:5000'
+8. access and test application APIs: 'http://localhost:5000/_ah/api/explorer'
+9. stop
 
-### Implementation Detail
-1. create new user     
-    (1) create new user `grader`:   
+### Design Explaination
+1. __Task 1__:              
+__sessions__:               
+session belongs to conference, so sesssions are created with one conference object as their parent. This attribution gives sessions a natural group that belongs to same conference.                 
+__speaker__:                            
+Instead create speaker entity in database, I simply list spaker as an attribution of session. All information about speaker is speaker's name and if this speaker is featured speaker or not. We could simply query sessions to figure out if this speaker is featured or not. So, I think this solution is efficient.
+2. __Task 3__:              
+__filterSession__ -- filter sesssions with latest start time and topics that are should be ignored.                      
+__getSesssionsWithHighlight__ -- figure out sessions with specific highlights array. Highlighs of each session is sorted for easier filter.              
 
-        adduser grader        
-    (2) grant `grader` sudo privilege: 
-        __add `grader   ALL=(ALL:ALL) ALL` in visudo__      
-    (3) SSH connection with RSA key: __create `.ssh` directory and copy `authorized_keys` to `.ssh`__
-2. update all installed packages:    
-
-        sudo apt-get update     
-        sudo apt-get upgrade        
-3. configure local timezone to UTC:     
-
-        sudo dpkg-reconfigure tzdata
-4. change SSH port to 2200:     
-
-        sudo nano /etc/ssh/sshd_config
-5. configure the Uncomplicated Firewall (UFW) to only allow incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123):   
-
-        sudo ufw default deny incoming
-        sudo ufw default allow outgoing
-        sudo ufw allow 2200/tcp
-        sudo ufw allow 80/tcp
-        sudo ufw allow 123/tcp
-        sudo ufw enable
-6. install and configure Apache to serve a Python mod_wsgi application:
-
-        sudo apt-get update
-        sudo apt-get install python-pip apache2 libapache2-mod-wsgi python-dev
-7. install and configure PostgreSQL:        
-    (1) do not allow remote connection (default setting)        
-    (2) create a new user `catalog`:        
-    change to PostgreSQL super-user and start PostgreSQL console:
-
-        sudo su - postgres
-        psql
-    create new user `catalog` and grant limited permition to application database:
-
-        CREATE USER catalog WITH PASSWORD 'passwd';
-        GRANT CONNECT ON DATABASE catalogdb TO catalog;
-        GRANT SELECT, DELETE, INSERT, UPDATE ON TABLE catagory, catagory_item TO catalog;
-8. install git
-
-        sudo apt-get install git
-9. deploy application to server:        
-    (1) create application root directory in `/var/www/`        
-    (2) clone code in root directory        
-    (3) write wsgi file in root directory
-    (4) add application configuration file in `/etc/apache2/sites-available`
-    (5) enalbe site:
-
-        sudo a2ensite CatalogApp
-        sudo service apache2 reload
-
-### Extra
-1. block defualt user `root` SSH connection
-    >ssh -i ~/.ssh/udacity_key.rsa root@52.34.216.40 -p 2200        
-    >Permission denied (publickey).
-2. protect SSH with fail2ban
-3. restrict access to .git file    
-    add `.htaccess` file to root directory      
-
-        #.htaccess
-        RedirectMatch 404 /\.git
-4. server automatic update
-
-        sudo apt-get install unattended-upgrades
-        sudo dpkg-reconfigure --priority=low unattended-upgrades
+### Result
+All tests passed!
 
 ### Creator
 WEN GUO
